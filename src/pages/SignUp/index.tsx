@@ -1,11 +1,15 @@
-import React, { useRef } from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
-  Image, View, ScrollView, KeyboardAvoidingView, Platform, TextInput,
+  Image, View, ScrollView, KeyboardAvoidingView, Platform, TextInput, Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 
 import { FormHandles } from '@unform/core';
+
+import * as Yup from 'yup';
+
+import getValidationErrors from '../../Utils/getValidationErrors';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -16,12 +20,44 @@ import {
   Container, Title, BackToSignIn, BackToSignInText, CustomForm,
 } from './styles';
 
+interface SignUpFormData {
+  name: string;
+  email: string;
+  password: string;
+}
+
 const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const navigation = useNavigation();
 
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
+
+  const handleSignUp = useCallback(
+    async (data: SignUpFormData): Promise<void> => {
+      try {
+        formRef.current?.setErrors({});
+
+        const schema = Yup.object().shape({
+          name: Yup.string().required('Name is required'),
+          email: Yup.string().required('Email is required').email(),
+          password: Yup.string().min(6, 'Password must have at least 6 digits'),
+        });
+
+        await schema.validate(data, { abortEarly: false });
+
+        // await api.post('/users', data);
+
+        // history.push('/');
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          formRef.current?.setErrors(getValidationErrors(err));
+        }
+        Alert.alert('Erro no cadastro', 'Ocorreu um erro ao fazer o cadastro, tente novamente.');
+      }
+    },
+    [],
+  );
 
   return (
     <>
@@ -39,7 +75,7 @@ const SignUp: React.FC = () => {
             <View>
               <Title>Crie sua conta</Title>
             </View>
-            <CustomForm ref={formRef} onSubmit={(data) => { console.log(data); }}>
+            <CustomForm ref={formRef} onSubmit={handleSignUp}>
 
               <Input
                 autoCapitalize="words"
