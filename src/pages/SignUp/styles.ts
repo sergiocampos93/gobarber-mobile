@@ -1,11 +1,16 @@
 import styled from 'styled-components/native';
 import { Platform } from 'react-native';
+import { Form } from '@unform/mobile';
 
 export const Container = styled.View`
   flex: 1;
   align-items: center;
   justify-content: center;
   padding: 0 30px ${Platform.OS === 'android' ? 150 : 40}px;
+`;
+
+export const CustomForm = styled(Form)`
+  width: 100%;
 `;
 
 export const Title = styled.Text`
