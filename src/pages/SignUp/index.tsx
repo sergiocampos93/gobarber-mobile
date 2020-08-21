@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { FormHandles } from '@unform/core';
 
 import * as Yup from 'yup';
+import api from '../../services/api';
 
 import getValidationErrors from '../../Utils/getValidationErrors';
 
@@ -39,16 +40,20 @@ const SignUp: React.FC = () => {
         formRef.current?.setErrors({});
 
         const schema = Yup.object().shape({
-          name: Yup.string().required('Name is required'),
-          email: Yup.string().required('Email is required').email(),
-          password: Yup.string().min(6, 'Password must have at least 6 digits'),
+          name: Yup.string().required('Nome é obrigatório'),
+          email: Yup.string().required('E-mail é obrigatório').email(),
+          password: Yup.string().min(6, 'A senha deve contar pelo menos 6 dígitos'),
         });
+
+        console.log(data);
 
         await schema.validate(data, { abortEarly: false });
 
-        // await api.post('/users', data);
+        Alert.alert('Cadastro realizado com sucesso!', 'Você já pode fazer login na aplicação.');
 
-        // history.push('/');
+        await api.post('/users', data);
+
+        navigation.goBack();
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           formRef.current?.setErrors(getValidationErrors(err));
@@ -56,7 +61,7 @@ const SignUp: React.FC = () => {
         Alert.alert('Erro no cadastro', 'Ocorreu um erro ao fazer o cadastro, tente novamente.');
       }
     },
-    [],
+    [navigation],
   );
 
   return (
@@ -108,7 +113,7 @@ const SignUp: React.FC = () => {
               />
 
               <Button onPress={() => formRef.current?.submitForm()}>
-                Entrar
+                Criar
               </Button>
             </CustomForm>
           </Container>

@@ -8,6 +8,8 @@ import * as Yup from 'yup';
 
 import { FormHandles } from '@unform/core';
 
+import { useAuth } from '../../hooks/auth';
+
 import getValidationErrors from '../../Utils/getValidationErrors';
 
 import Input from '../../components/Input';
@@ -35,6 +37,8 @@ const SignIn: React.FC = () => {
   const passwordInpuRef = useRef<TextInput>(null);
   const navigation = useNavigation();
 
+  const { signIn } = useAuth();
+
   const handleSignIn = useCallback(
     async (data: SignInFormData): Promise<void> => {
       try {
@@ -42,17 +46,17 @@ const SignIn: React.FC = () => {
 
         const schema = Yup.object().shape({
           email: Yup.string()
-            .required('Email is required')
+            .required('E-mail é obrigatório')
             .email('Type a valid e-mail'),
-          password: Yup.string().required('Password is required'),
+          password: Yup.string().required('Senha é obrigatória'),
         });
 
         await schema.validate(data, { abortEarly: false });
 
-        // await signIn({
-        //   email: data.email,
-        //   password: data.password,
-        // });
+        await signIn({
+          email: data.email,
+          password: data.password,
+        });
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           formRef.current?.setErrors(getValidationErrors(err));
